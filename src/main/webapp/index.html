@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script src="js/jquery-3.4.1.js"></script>
+<script type="text/javascript">
+
+function init(){
+	//发送获取上一次访问时间的请求
+    $.ajax({
+        type: "get",
+        url: "lastvisittime",
+        cache: true,
+        async: true,
+        dataType: "json",
+        success: function(text){	
+        	if(text.result == "success"){
+            	//创建一个包含上一次访问时间的节点
+            	var node = "<h3>上一次的访问时间是：" + text.time + "</h3>"
+            	//把这个节点添加到id是visit的div节点里面
+            	$("#visit").html(node);
+        	}else{
+        		alert(text.message);
+        	}        	
+        }
+    });	
+	//加载学生的数据
+	list();
+}
+
+function save(){
+    $.ajax({
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "save" ,//url
+            data: $("#register").serialize(),
+            success: function (text) {
+                //console.log(data);//打印服务端返回的数据(调试用)
+                if (text.result == "success") {
+                    list();//加载学生的数据
+                }else{
+                	alert(text.message);
+                }
+            },
+            error: function(){
+            	alert("异常");
+            }
+        });
+}
+
+function list(){
+    $.ajax({
+        type: "get",
+        url: "abc",
+        cache: true,
+        async: true,
+        dataType: "json",
+        success: function(text){
+        	console.log("重置表单");
+        	$("#register")[0].reset(); 	//重置表单
+            var table = "<table width=\"100%\">";
+            table += "";
+            $.each(text.data,function(index,obj){
+                table += "<tr><td width=\"20%\">"+obj.sno+"</td><td width=\"20%\">" + obj.sname + 
+                "</td><td width=\"20%\">" + obj.gender + "</td><td width=\"20%\">" + obj.birth + 
+                "</td><td width=\"20%\"></td></tr>";
+            });
+            table += "</table>";
+            //console.log(html);
+            $("#xyz").html(table);
+        }
+    });
+}
+</script>
+</head>
+<body onload = "init();">
+<h1>欢迎使用学生管理系统</h1>
+<div id="visit"></div>
+<div>
+<form id="register">
+<table width="100%">
+<tr>
+<td width="20%">学号</td>
+<td width="20%">姓名</td>
+<td width="20%">性别</td>
+<td width="20%">生日</td>
+<td width="20%"></td>
+</tr>
+<tr>
+<td><input type="text" name="sno" /></td>
+<td><input type="text" name="sname" /></td>
+<td>
+<input type="radio" name="gender" value="1" checked />男
+<input type="radio" name="gender" value="0" />女
+</td>
+<td><input type="date" name="birth" /></td>
+<td><input type="button" value="登记"  onclick="save();" /></td>
+</tr>
+</table>
+</form>
+</div>
+<div id="xyz"></div>
+</body>
+</html>
